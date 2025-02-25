@@ -1,0 +1,36 @@
+# Consensus sequence inference - ARTIC pipeline (v1.6.1)
+
+# Activate artic environment
+conda activate artic
+
+# Filter reads
+artic guppyplex --skip-quality-check --min-length 400 --max-length 700 --directory data/ --prefix barcode19_filtered
+
+# Infer consensus genome sequence
+artic minion --model r1041_e82_400bps_fast_g632  --normalise 200 --scheme-directory primer_schemes/ --scheme-name artic-sars-cov-2 --scheme-length 400 --scheme-version v4.1.0 --read-file barcode19_filtered_.fastq barcode19
+
+
+############################################################################################################################################
+
+# Filter reads
+artic guppyplex --skip-quality-check --min-length 400 --max-length 700 --directory data/barcode19 --prefix barcode19_filtered
+
+# Checking each argument
+# --skip-quality-check: Do not perform qc (if using only pass reads)
+# --min-length and --max-length: Filter reads outside expected fragment size (to avoid chimeric reads)
+# --directory: path for the directory containing fastq data
+# --prefix: indicates that the resulting filtered fastq file will have barcode19_filtered as prefix (resulting file: barcode19_filtered_.fastq)
+
+############################################################################################################################################
+
+# Infer consensus genome sequence
+artic minion --model r1041_e82_400bps_fast_g632  --normalise 200 --scheme-directory primer_schemes/ --scheme-name artic-sars-cov-2 --scheme-length 400 --scheme-version v4.1.0 --read-file barcode19_filtered_.fastq barcode19
+
+# Checking ea argument
+# --model: Indicates adequate model for clair 3 (variant caller) - This model depends on the basecalling method used to generate fastq files
+# --normalise: Normalize sequencing depth at 200x before calling variants
+# --scheme-directory: Gets the path to store locally reference genomes and primer schemes
+# --scheme-name: Canonical primer scheme name (as provided by the artic network: https://github.com/quick-lab/primerschemes)
+# --scheme-length and --scheme-version: Information needed to precisely locate the correct scheme
+# --read-file: Filtered fastq file
+# Lastly, a positional argument receives the prefix for the names of all output files.
