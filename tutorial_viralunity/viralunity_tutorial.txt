@@ -1,0 +1,12 @@
+# Consensus sequence inference - ViralUnity pipeline (v1.0.0-beta)
+
+# Activate viralunity environment
+conda activate viralunity
+
+# Create a samplesheet for the sequencing run
+python create_viralunity_samplesheet.py --input data/ --level 0 --separator . --pattern barcode --output samplesheet_SARS-CoV-2.csv
+
+# Run the ViralUnity consensus pipeline
+python viralunity_consensus.py --data-type nanopore --sample-sheet samplesheet_SARS-CoV-2.csv --config-file config_SARS-CoV-2.yml --output output_run_SARS-CoV-2 --run-name run_SARS-CoV-2 --reference references/SARS-CoV-2_RefSeq.fasta  --primer-scheme references/SARS-CoV-2.primer.v4.1.bed  --minimum-coverage 20 --threads 2 --threads-total 16
+
+
