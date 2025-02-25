@@ -1,0 +1,73 @@
+# Quick consensus sequence inference
+
+# Map reads
+minimap2 -a -t 2 -x map-ont SARS-CoV-2_RefSeq.fasta barcode19.fastq | samtools view -bS -F 4 - | samtools sort -o barcode19.sorted.bam - 
+
+# Soft clip primer related mutations
+ivar trim -b SARS-CoV-2.primer.v4.1.bed -e -q 0 -m 50 -p barcode19.trim -i barcode19.sorted.bam
+
+# Sort mapping file
+samtools sort barcode19.trim.bam -o barcode19.trim.sorted.bam
+
+# Index mapping file
+samtools index barcode19.trim.sorted.bam
+
+# Infer consensus sequence
+samtools consensus -a -d 20 -m simple -q -c 0.75 --show-ins yes barcode19.trim.sorted.bam -o barcode19.consensus.fasta
+
+############################################################################################################################################
+
+# Map reads
+minimap2 -a -t 2 -x map-ont SARS-CoV-2_RefSeq.fasta barcode19.fastq | samtools view -bS -F 4 - | samtools sort -o barcode19.sorted.bam - 
+
+# Checking each part
+
+# Minimap 2
+minimap2 -a -t 2 -x map-ont SARS-CoV-2_RefSeq.fasta barcode19.fastq 
+# -a: requests output in sam format
+# -t 2: requests the software to use two threads (logical cores)
+# -x map-ont: instructs the software to use pre-configured settings to align ONT data
+
+# The output of the mapping analysis is piped as input to samtools for filtering
+| samtools view -bS -F 4 -
+# -b: Output contents into a bam file
+# -S: Input format is autodetected
+# -F 4: Exclude unmapped reads from output file
+
+# The resulting mapping analysis is piped into samtools sort
+| samtools sort -o barcode19.sorted.bam - 
+# -o: specifies the output file name
+
+
+############################################################################################################################################
+
+# Soft clip primer related mutations
+ivar trim -b SARS-CoV-2.primer.v4.1.bed -e -q 0 -m 50 -p barcode19.trim -i barcode19.sorted.bam
+
+# Checking each argument
+# -b: Bed file with primer scheem description
+# -e: Include reads with no primers
+# -q 0: Do not perform quality trimming (let's assume basecalling was reasonably accurate)
+# -m 50: Minimum read length is 50bp
+# -p: prefix for the output bam file
+# -i: input bam file
+
+############################################################################################################################################
+
+# Infer consensus sequence
+samtools consensus -a -d 20 -m simple -q -c 0.75 --show-ins yes barcode19.trim.sorted.bam -o barcode19.consensus.fasta
+
+# Checking each argument
+# -a: Outputs all bases, from start to end of reference.
+# -d 20: Specifies that a base need to be sequeced at least 20 times to be included in the consensus sequence
+# -m simple: Simple counting methods (analogous to samtools mpileup)
+# -q: Uses base quality score to estimate the most likely base at a given position
+# -c 0.75: A given base need to be at a frequency of at least 75% to be included in the consensus (with -q, bases are weighted by the quality score).
+# --show-ins: output consensus sequence include insertions.
+# -o: specifies the output file name
+
+
+
+
+
+
